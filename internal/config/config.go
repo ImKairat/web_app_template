@@ -2,21 +2,44 @@ package config
 
 import (
 	"gopkg.in/yaml.v3"
+	"log"
 	"os"
+	"path/filepath"
 	"ses_back/internal/models"
 )
 
-const YamlPath = "/home/starman/GolandProjects/ses_back/config.yaml"
-
 var Config models.AppConfig
 
-func ReadConfig() {
-	file, err := os.ReadFile(YamlPath)
+func GetConfigPath() (string, error) {
+	wd, err := os.Getwd()
 	if err != nil {
-		panic(err)
+		log.Panic(err)
 	}
-	err = yaml.Unmarshal(file, &Config)
+
+	configPath := filepath.Join(wd, "config.yaml")
+
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		log.Panic(err)
+	}
+
+	return configPath, nil
+}
+
+func ReadConfig() {
+	YamlPath, err := GetConfigPath()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+	}
+
+	file, err := os.ReadFile(YamlPath)
+
+	if err != nil {
+		log.Panic(err)
+	}
+
+	err = yaml.Unmarshal(file, &Config)
+
+	if err != nil {
+		log.Panic(err)
 	}
 }

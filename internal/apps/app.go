@@ -4,34 +4,26 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
+	"ses_back/internal/config"
 	"ses_back/internal/service"
 )
 
-const ServerPort = ":8080"
-
 func App() {
+	config.ReadConfig()
+	var svrCFG = config.Config.Server
 	server := gin.Default()
 
 	// Services:
 	go server.GET(
-		"/",
-		service.Hi,
-	)
-
-	go server.GET(
-		"/user1",
-		service.GetUsers,
-	)
-
-	go server.POST(
-		"/user",
-		service.GetUsers,
+		"/events",
+		service.GetEvents,
 	)
 
 	//---------------------------------------------------------------//
-	fmt.Printf("Server run on http://127.0.0.1%s\n", ServerPort)
+	var addr = fmt.Sprintf("%s:%s", svrCFG.Host, svrCFG.Port)
+	fmt.Printf("Server run on https://%s\n", addr)
 
-	err := server.Run(ServerPort)
+	err := server.Run(addr)
 	if err != nil {
 		log.Fatal("Server run error: ", err)
 	}
